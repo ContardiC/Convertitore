@@ -18,6 +18,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 public class MainActivity extends AppCompatActivity {
     EditText leftEditText;
     EditText rightEditText;
@@ -25,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     Spinner leftSpinner;
     Spinner rightSpinner;
     String leftChoice, rightChoice;
+    boolean isConverting;
+    CompletableFuture<Double> futureResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,17 +51,18 @@ public class MainActivity extends AppCompatActivity {
         leftChoice = "kilogram";
         rightChoice = "kilogram";
         // EditText setup
-//        leftEditText.setText("1");
-     rightEditText.setText("1");
-
+        leftEditText.setText("1");
+        rightEditText.setText("1");
+        // flag
+        isConverting = false;
         // Dati
-        String[] physicalQuantities = {"Mass","Time"};
-        String[] mass = {"kilogram","grams","pounds"};
-        String[] time = {"hours","minutes","seconds"};
+        String[] physicalQuantities = {"Mass", "Time"};
+        String[] mass = {"kilogram", "grams", "pounds"};
+        String[] time = {"hours", "minutes", "seconds"};
         // Array Adapter
-        ArrayAdapter<String> categoryArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,physicalQuantities);
-        ArrayAdapter<String> massArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,mass);
-        ArrayAdapter<String> timeArrayAdapter = new ArrayAdapter<>(this,android.R.layout.simple_spinner_item,time);
+        ArrayAdapter<String> categoryArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, physicalQuantities);
+        ArrayAdapter<String> massArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, mass);
+        ArrayAdapter<String> timeArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, time);
 
         // Layout da usare quando la lista appare
         categoryArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -68,16 +74,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selectedCategory = parent.getItemAtPosition(position).toString();
-                Log.d("MainActivity","Hai selezionato: " + selectedCategory);
+                Log.d("MainActivity", "Hai selezionato: " + selectedCategory);
                 // In base alla categoria selezionata cambio l'ArrayAdapter
-                if(selectedCategory.equals("Mass")){
-                   leftSpinner.setAdapter(massArrayAdapter);
-                   rightSpinner.setAdapter(massArrayAdapter);
-                }else if(selectedCategory.equals("Time")){
+                if (selectedCategory.equals("Mass")) {
+                    leftSpinner.setAdapter(massArrayAdapter);
+                    rightSpinner.setAdapter(massArrayAdapter);
+                } else if (selectedCategory.equals("Time")) {
                     leftSpinner.setAdapter(timeArrayAdapter);
                     rightSpinner.setAdapter(timeArrayAdapter);
                 }
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
@@ -87,10 +94,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 leftChoice = adapterView.getItemAtPosition(i).toString();
-//                String leftText = leftEditText.getText().toString();
-//                Double leftValue = Double.parseDouble(leftText);
-//                Double res = conversion(leftValue,leftChoice,rightChoice);
-//                rightEditText.setText(String.valueOf(res));
+                String leftText = leftEditText.getText().toString();
+                Double leftValue = Double.parseDouble(leftText);
+                Double res = conversion(leftValue,leftChoice,rightChoice);
+                rightEditText.setText(String.valueOf(res));
             }
 
             @Override
@@ -102,10 +109,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 rightChoice = adapterView.getItemAtPosition(i).toString();
-//                String rightText = rightEditText.getText().toString();
-//                Double rightValue = Double.parseDouble(rightText);
-//                Double res = conversion(rightValue,rightChoice,leftChoice);
-//                leftEditText.setText(String.valueOf(res));
+                String rightText = rightEditText.getText().toString();
+                Double rightValue = Double.parseDouble(rightText);
+                Double res = conversion(rightValue,rightChoice,leftChoice);
+                leftEditText.setText(String.valueOf(res));
             }
 
             @Override
@@ -127,16 +134,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 String leftText = editable.toString();
-                Log.d("MainActivity" ,"Left Text" + leftText);
-                if(leftText.length()>0){
-                    Log.d("LeftafterTextChanged","From: " + leftChoice + "To:" + rightChoice);
-                    Double leftValue = Double.parseDouble(leftText);
-                    Log.d("MainActivity" ,"Left Value" + leftValue);
-                    Double res = conversion(leftValue,leftChoice,rightChoice);
-                    Log.d("MainActivity" ,"Res" + String.valueOf(res));
-                    rightEditText.setText(String.valueOf(res));
-
-                }
+                Double leftValue = Double.parseDouble(leftText);
+                Double res = conversion(leftValue,leftChoice,rightChoice);
+                rightEditText.setText(String.valueOf(res));
             }
         });
         rightEditText.addTextChangedListener(new TextWatcher() {
@@ -153,16 +153,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 String rightText = editable.toString();
-                // TODO: implementare richiamo funzione di conversione
             }
         });
 
     }
-    public Double conversion(Double value, String from, String to){
+
+    public Double conversion(Double value, String from, String to) {
+
         Double res = (double) 0;
-        switch (from){
+        switch (from) {
             case "kilogram":
-                switch(to){
+                switch (to) {
                     case "kilogram":
                         res = value;
                         break;
@@ -175,20 +176,20 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case "grams":
-                switch(to){
+                switch (to) {
                     case "kilogram":
-                        res = value/1000;
+                        res = value / 1000;
                         break;
                     case "grams":
                         res = value;
                         break;
                     case "pounds":
-                        res = value/453.592;
+                        res = value / 453.592;
                         break;
                 }
                 break;
             case "pounds":
-                switch(to){
+                switch (to) {
                     case "kilogram":
                         res = value * 0.543592;
                         break;
@@ -203,7 +204,13 @@ public class MainActivity extends AppCompatActivity {
             default:
                 // error?
         }
+
         return res;
     }
 
+
 }
+
+
+
+
