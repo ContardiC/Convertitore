@@ -148,6 +148,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 rightText = editable.toString();
+                Double rightValue = Double.parseDouble(rightText);
+                Double res = conversion(rightValue,rightChoice,leftChoice);
+                leftEditText.setText(String.valueOf(res));
             }
         });
 
