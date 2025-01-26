@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     Spinner leftSpinner;
     Spinner rightSpinner;
     String leftChoice, rightChoice;
-    String leftText,rightText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,11 +45,9 @@ public class MainActivity extends AppCompatActivity {
         // Init Data Setup
         leftChoice = "kilogram";
         rightChoice = "kilogram";
-        leftText = "1";
-        rightText = "1";
         // EditText setup
-        leftEditText.setText(leftText);
-        rightEditText.setText(rightText);
+//        leftEditText.setText("1");
+     rightEditText.setText("1");
 
         // Dati
         String[] physicalQuantities = {"Mass","Time"};
@@ -89,10 +87,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 leftChoice = adapterView.getItemAtPosition(i).toString();
-                String leftText = leftEditText.getText().toString();
-                Double leftValue = Double.parseDouble(leftText);
-                Double res = conversion(leftValue,leftChoice,rightChoice);
-                rightEditText.setText(String.valueOf(res));
+//                String leftText = leftEditText.getText().toString();
+//                Double leftValue = Double.parseDouble(leftText);
+//                Double res = conversion(leftValue,leftChoice,rightChoice);
+//                rightEditText.setText(String.valueOf(res));
             }
 
             @Override
@@ -104,10 +102,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 rightChoice = adapterView.getItemAtPosition(i).toString();
-                String rightText = rightEditText.getText().toString();
-                Double rightValue = Double.parseDouble(rightText);
-                Double res = conversion(rightValue,rightChoice,leftChoice);
-                leftEditText.setText(String.valueOf(res));
+//                String rightText = rightEditText.getText().toString();
+//                Double rightValue = Double.parseDouble(rightText);
+//                Double res = conversion(rightValue,rightChoice,leftChoice);
+//                leftEditText.setText(String.valueOf(res));
             }
 
             @Override
@@ -128,10 +126,17 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                leftText = editable.toString();
-                Double leftValue = Double.parseDouble(leftText);
-                Double res = conversion(leftValue,leftChoice,rightChoice);
-                rightEditText.setText(String.valueOf(res));
+                String leftText = editable.toString();
+                Log.d("MainActivity" ,"Left Text" + leftText);
+                if(leftText.length()>0){
+                    Log.d("LeftafterTextChanged","From: " + leftChoice + "To:" + rightChoice);
+                    Double leftValue = Double.parseDouble(leftText);
+                    Log.d("MainActivity" ,"Left Value" + leftValue);
+                    Double res = conversion(leftValue,leftChoice,rightChoice);
+                    Log.d("MainActivity" ,"Res" + String.valueOf(res));
+                    rightEditText.setText(String.valueOf(res));
+
+                }
             }
         });
         rightEditText.addTextChangedListener(new TextWatcher() {
@@ -147,10 +152,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                rightText = editable.toString();
-                Double rightValue = Double.parseDouble(rightText);
-                Double res = conversion(rightValue,rightChoice,leftChoice);
-                leftEditText.setText(String.valueOf(res));
+                String rightText = editable.toString();
+                // TODO: implementare richiamo funzione di conversione
             }
         });
 
